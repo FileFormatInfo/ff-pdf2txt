@@ -10,52 +10,59 @@
 		 		 org.apache.pdfbox.exceptions.InvalidPasswordException,
 		 		 org.apache.pdfbox.pdfparser.PDFParser,
 		 		 org.apache.pdfbox.pdmodel.PDDocument,
-		 		 org.apache.pdfbox.util.PDFTextStripper
-"
+		 		 org.apache.pdfbox.util.PDFTextStripper"
 %><%
 
-	/*if (request.getMethod().equalsIgnoreCase("post") == false)
+	if (request.getMethod().equalsIgnoreCase("post") == false)
 	{
 		response.sendRedirect("http://www.fileformat.info/convert/doc/pdf2txt.htm");
 		return;
-	}*/
+	}
 
-%><%
 	Map<String, String> params = new HashMap<String, String>();
 	byte[] data = null;
 	byte[] result = null;
 
 	ServletFileUpload upload = new ServletFileUpload();
 
-	FileItemIterator iterator = upload.getItemIterator(request);
-	while (iterator.hasNext())
+	try
 	{
-		FileItemStream item = iterator.next();
-		InputStream stream = item.openStream();
+		FileItemIterator iterator = upload.getItemIterator(request);
+		while (iterator.hasNext())
+		{
+			FileItemStream item = iterator.next();
+			InputStream stream = item.openStream();
 
-		if (item.isFormField())
-		{
-			String value = Streams.asString(stream);
-			params.put(item.getFieldName(), value);
-		}
-		else
-		{
-			int total = 0;
-			int len;
-			byte[] buffer = new byte[8192];
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			while ((len = stream.read(buffer, 0, buffer.length)) != -1)
+			if (item.isFormField())
 			{
-				total += len;
-				baos.write(buffer, 0, len);
+				String value = Streams.asString(stream);
+				params.put(item.getFieldName(), value);
 			}
-			data = baos.toByteArray();
+			else
+			{
+				int total = 0;
+				int len;
+				byte[] buffer = new byte[8192];
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				while ((len = stream.read(buffer, 0, buffer.length)) != -1)
+				{
+					total += len;
+					baos.write(buffer, 0, len);
+				}
+				data = baos.toByteArray();
+			}
 		}
+	}
+	catch (Exception e)
+	{
+		out.println("ERROR: unable to process request (" + e.getMessage() + ")");
+		return;
 	}
 
 	if (data == null || data.length == 0)
 	{
-		throw new Exception("No file uploaded");
+		out.println("ERROR: No file uploaded");
+		return;
 	}
 
 	InputStream in = new ByteArrayInputStream(data);
@@ -69,25 +76,18 @@
 	}
 	catch (Exception e)
 	{
-		out.println("ERROR: " + e.getMessage() + " (parse)");
+		out.println("ERROR: " + e.getMessage() + " (PDFParser.parse)");
 		return;
 	}
 
-	//response.reset();
-	//response.setContentType("text/plain;charset=utf-8");
-
+	PDFTextStripper stripper = new PDFTextStripper();
 	try
 	{
-		PDFTextStripper stripper = new PDFTextStripper();
 		stripper.writeText( doc, out );
 	}
 	catch (Exception e)
 	{
-		out.write("ERROR: " + e.getMessage() + " (writeText)");
-	}
-
-	if (1 == 1)
-	{
+		out.println("ERROR: " + e.getMessage() + " (PDFTextStripper.writeText)");
 		return;
 	}
 
