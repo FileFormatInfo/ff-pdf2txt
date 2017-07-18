@@ -6,5 +6,19 @@
 		xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 
 	<display-name>pdf2txt</display-name>
+	
+   <error-page>
+        <error-code>500</error-code>
+        <location>/500.jsp</location>
+    </error-page>
+
+    <servlet>
+        <servlet-name>status</servlet-name>
+        <jsp-file>/status.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>status</servlet-name>
+        <url-pattern>/status.json</url-pattern>
+    </servlet-mapping>
 
 </web-app>

@@ -1,6 +1,5 @@
 #!/bin/bash
 #
+# deploy to Google AppEngine
 #
-#
-cd www
-af update pdf2txt
+gcloud beta app deploy --project=ff-pdf2txt --verbosity=info www

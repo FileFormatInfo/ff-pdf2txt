@@ -4,12 +4,13 @@ This is a simple server that extracts text from a PDF using [Apache PDFBox](http
 
 The code is deliberately simple to avoid dependencies.  All necessary libraries are included.
 
-You will need Jetty installed to run in development.  The included deploy script pushes to [AppFog](https://www.appfog.com/) but should work on any recent Java web server.
+The included [run](run.sh) and [deploy](deploy.sh) shell scripts use Google AppEngine
+but the code should work on any recent Java web server.
 
 
 ## License
 
-Copyright 2013 Andrew Marcuse
+Copyright © 2013-2017 Andrew Marcuse
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

@@ -3,6 +3,8 @@
 		 import="java.io.*,
 		 		 java.text.*,
 		 		 java.util.*,
+		 		 java.util.logging.Logger,
+		 		 java.util.regex.*,
 		 		 org.apache.commons.fileupload.*,
 		 		 org.apache.commons.fileupload.servlet.*,
 		 		 org.apache.commons.fileupload.util.*,
@@ -11,13 +13,26 @@
 		 		 org.apache.pdfbox.pdfparser.PDFParser,
 		 		 org.apache.pdfbox.pdmodel.PDDocument,
 		 		 org.apache.pdfbox.util.PDFTextStripper"
+%><%!
+    private static final Logger log = Logger.getLogger("convert.jsp");
+    private static final Pattern refpat = Pattern.compile("^https?://www\\.fileformat\\.info/.*");
 %><%
 
 	if (request.getMethod().equalsIgnoreCase("post") == false)
 	{
-		response.sendRedirect("http://www.fileformat.info/convert/doc/pdf2txt.htm");
+		response.sendRedirect("https://www.fileformat.info/convert/doc/pdf2txt.htm");
 		return;
 	}
+	
+	String referrer = request.getHeader("Referer");
+	if (referrer == null)
+	{
+	    log.info("No referrer");
+	}
+	else if (refpat.matcher(referrer).matches() == false)
+	{
+	    log.warning("Foreign referrer: '" + referrer + "'");
+    }
 
 	Map<String, String> params = new HashMap<String, String>();
 	byte[] data = null;
@@ -55,12 +70,14 @@
 	}
 	catch (Exception e)
 	{
+		log.severe("Upload error: " + e.getMessage());
 		out.println("ERROR: unable to process request (" + e.getMessage() + ")");
 		return;
 	}
 
 	if (data == null || data.length == 0)
 	{
+	    log.severe("No file uploaded");
 		out.println("ERROR: No file uploaded");
 		return;
 	}
@@ -76,6 +93,7 @@
 	}
 	catch (Exception e)
 	{
+	    log.severe("Parse error: " + e.getMessage());
 		out.println("ERROR: " + e.getMessage() + " (PDFParser.parse)");
 		return;
 	}
@@ -87,8 +105,8 @@
 	}
 	catch (Exception e)
 	{
+	    log.severe("Write error: " + e.getMessage());
 		out.println("ERROR: " + e.getMessage() + " (PDFTextStripper.writeText)");
 		return;
 	}
-
 %>
