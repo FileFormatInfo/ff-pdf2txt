@@ -7,7 +7,7 @@
 
     if (System.getProperty("com.google.appengine.runtime.environment", "Unknown").equalsIgnoreCase("Production"))
     {
-    	response.sendRedirect("http://www.fileformat.info/convert/doc/pdf2txt.htm");
+    	response.sendRedirect("https://www.fileformat.info/convert/doc/pdf2txt.htm");
 		return;
 	}
 %><html>
