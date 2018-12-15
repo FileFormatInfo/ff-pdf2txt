@@ -1,9 +1,15 @@
 <%@ page contentType="text/plain;charset=utf-8"
-		 import="org.json.simple.*"
+		 import="java.time.*,
+		 		 java.time.format.*,
+				 org.json.simple.*"
 %><%
 	JSONObject retVal = new JSONObject();
 	retVal.put("success", Boolean.TRUE);
 	retVal.put("message", "OK");
+    retVal.put("commit", System.getProperty("COMMIT", "(unknown)"));
+	retVal.put("timestamp", ZonedDateTime.now( ZoneOffset.UTC ).format( DateTimeFormatter.ISO_INSTANT ));
+    retVal.put("lastmod", System.getProperty("LASTMOD", "(unknown)"));
+	retVal.put("tech", "Java " + System.getProperty("java.specification.version", "(unknown)"));
 	retVal.put("version", System.getProperty("java.version", "Unknown") + " (" + System.getProperty("java.vm.name", "Unknown VM") + ")");
 	retVal.put("java.vendor", System.getProperty("java.vendor"));
 	retVal.put("java.version", System.getProperty("java.version"));
@@ -29,6 +35,9 @@
 	}
 	else
 	{
+		response.setHeader("Access-Control-Allow-Origin", "*");
+		response.setHeader("Access-Control-Allow-Methods", "GET, POST");
+		response.setHeader("Access-Control-Max-Age", "604800");
 		out.print(json);
 	}
 %>
