@@ -5,33 +5,48 @@
 		 		 java.util.*"
 %><%
 
-    if (System.getProperty("com.google.appengine.runtime.environment", "Unknown").equalsIgnoreCase("Production"))
-    {
-    	response.sendRedirect("https://www.fileformat.info/convert/doc/pdf2txt.htm");
-		return;
-	}
+	String formUrl = System.getenv("FORM_URL");
+
 %><html>
-<head>
-<title>pdf2txt</title>
-</head>
-<body>
-<form action="convert.jsp"	enctype="multipart/form-data" method="post" name="theForm">
-<table class="dataentry">
-	<tr>
-		<th colspan="2">Extract Text from PDF</th>
-	</tr>
-	<tr>
-		<td valign="top">Source file</td>
-		<td><input name="stdin" type="file" /></td>
-	</tr>
-	<tr>
-		<td>&nbsp;</td>
-		<td>
-			<input type="submit" name="save" value="Submit"/>
-			<input type="submit" name="cancel" value="Cancel" />
-		</td>
-	</tr>
-</table>
-</form>
-</body>
+	<head>
+		<title>pdf2txt</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="stylesheet" href="/css/light.css" />
+	</head>
+	<body>
+		<h1>
+			<a href="https://www.fileformat.info/"><img alt="FileFormat.Info logo" src="favicon.svg" style="height:2.2em;vertical-align:middle;" /></a>
+			pdf2txt
+		</h1>
+		<p>
+			Extract text from a PDF
+		</p>
+	<% if (formUrl != null && formUrl.length() > 0) { %>
+		<p>
+			<a href="<%=formUrl%>">Try it!</a>
+		</p>
+	<% } else { %>
+		<form action="convert.jsp" enctype="multipart/form-data" method="post">
+			<fieldset>
+				<legend>Upload</legend>
+				<label for="stdin">PDF file</label>
+				<input name="stdin" type="file" />
+				<input type="submit" name="save" value="Extract text"/>
+			</fieldset>
+		</form>
+	<% } %>
+		<p>
+			<a href="https://github.com/FileFormatInfo/ff-pdf2txt">How this works</a>, including source code!
+		</p>
+		<p>
+			<a href="https://www.fileformat.info/">FileFormat.Info</a> has more 
+			<a href="https://www.fileformat.info/convert/">file conversion utilities</a>
+			and documentation on different <a href="https://www.fileformat.info/format/">file formats</a>.
+		</p>
+		<footer style="text-align:center">
+			<a href="https://www.fileformat.info/about/privacy.htm">Privacy Policy</a>
+			| <a href="https://www.fileformat.info/about/tos.htm">Terms of Service</a>
+			<img src="https://fileformat.goatcounter.com/count?p=/subsite/pdf2txt/index.html">
+		</footer>
+	</body>
 </html>

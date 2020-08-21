@@ -2,4 +2,4 @@
 # robots.txt for pdf2txt
 #
 User-agent: *
-Disallow: /
+Disallow: /convert

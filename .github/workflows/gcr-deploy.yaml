@@ -1,0 +1,67 @@
+name: build
+
+on:
+  push:
+    branches:
+    - main
+
+# Environment variables available to all jobs and steps in this workflow
+env:
+  RUN_PROJECT: ${{ secrets.RUN_PROJECT }}
+  RUN_REGION: ${{ secrets.RUN_REGION }}
+  RUN_SERVICE: ${{ secrets.RUN_SERVICE }}
+
+jobs:
+  setup-build-deploy:
+    name: Setup, Build, and Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+
+      - name: Set COMMIT and LASTMOD
+        run: |
+          sudo apt-get install -y xmlstarlet
+          xmlstarlet edit --inplace --update "//_:web-app/_:context-param/_:param-name[text()='COMMIT']/parent::*/_:param-value" -v ${GITHUB_SHA:0:7} www/WEB-INF/web.xml
+          xmlstarlet edit --inplace --update "//_:web-app/_:context-param/_:param-name[text()='LASTMOD']/parent::*/_:param-value" -v "$(date -u +%Y-%m-%dT%H:%M:%SZ)" www/WEB-INF/web.xml
+
+      # Setup gcloud CLI
+      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        with:
+          version: '275.0.0'
+          service_account_email: ${{ secrets.GCP_SA_EMAIL }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+
+      # Configure gcloud CLI
+      - name: gcloud Set up
+        run: |
+          gcloud config set project $RUN_PROJECT
+
+      # Build and push image to Google Container Registry
+      - name: Docker Build
+        run: |
+          docker build -t gcr.io/$RUN_PROJECT/$RUN_SERVICE:$GITHUB_SHA .
+
+      - name: GCloud auth to docker
+        run: |
+          gcloud auth configure-docker
+
+      - name: Push to registry
+        run: |
+          docker push gcr.io/$RUN_PROJECT/$RUN_SERVICE:$GITHUB_SHA
+
+      # Deploy image to Cloud Run
+      - name: Deploy
+        run: |
+          gcloud run deploy $RUN_SERVICE \
+            --allow-unauthenticated \
+            --image gcr.io/$RUN_PROJECT/$RUN_SERVICE:$GITHUB_SHA \
+            --platform managed \
+            --project ${RUN_PROJECT} \
+            --region $RUN_REGION
