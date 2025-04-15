@@ -1,17 +1,16 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
-# run the app in a local docker container
+# script to run on localhost
 #
 
 set -o errexit
 set -o pipefail
 set -o nounset
 
-echo "INFO: starting"
+ENV_FILE="${1:-./.env}"
+if [ -f "${ENV_FILE}" ]; then
+    echo "INFO: loading '${ENV_FILE}'!"
+    export $(cat "${ENV_FILE}")
+fi
 
-docker run \
-	--publish 4000:8080 \
-	--volume /tmp/jetty \
-	--volume /run/jetty \
-	--volume "${PWD}/www:/var/lib/jetty/webapps/ROOT" \
-	jetty:9.4.30-jdk14
+mvn spring-boot:run

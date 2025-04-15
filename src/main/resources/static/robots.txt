@@ -1,5 +1,5 @@
 #
-# robots.txt for pdf2txt
+# robots.txt for ff-pdf2txt
 #
 User-agent: *
 Disallow: /convert
